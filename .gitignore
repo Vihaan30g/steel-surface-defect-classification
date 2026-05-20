@@ -1,0 +1,35 @@
+
+# WHY .gitignore IS IMPORTANT
+
+# Git should NOT upload:
+# datasets
+# trained models
+# temporary files
+# virtual environments
+
+
+
+
+
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# PyTorch checkpoints
+*.pth
+
+# Dataset
+data/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
