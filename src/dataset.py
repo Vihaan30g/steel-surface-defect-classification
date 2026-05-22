@@ -1,8 +1,18 @@
 from pathlib import Path
-
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
+
+
+from config import (
+    IMAGE_SIZE,
+    NORMALIZATION_MEAN,
+    NORMALIZATION_STD,
+    FLIP_PROBABILITY,
+    ROTATION_RANGE,
+    COLOR_JITTER_BRIGHTNESS,
+    COLOR_JITTER_CONTRAST
+)
 
 
 class NEUDataset(Dataset):
@@ -10,7 +20,6 @@ class NEUDataset(Dataset):
     def __init__(self, root_dir, transform=None):
 
         self.root_dir = Path(root_dir)
-
         self.transform = transform
 
         self.classes = sorted(
@@ -25,13 +34,9 @@ class NEUDataset(Dataset):
         self.samples = []
 
         for class_name in self.classes:
-
             class_folder = self.root_dir / class_name
-
             image_paths = list(class_folder.glob("*.jpg"))
-
             for image_path in image_paths:
-
                 self.samples.append(
                     (
                         image_path,
@@ -39,14 +44,15 @@ class NEUDataset(Dataset):
                     )
                 )
 
-    def __len__(self):
 
+
+    def __len__(self):
         return len(self.samples)
+    
+
 
     def __getitem__(self, idx):
-
         image_path, label = self.samples[idx]
-
         image = Image.open(image_path).convert("RGB")
 
         if self.transform:
@@ -56,38 +62,42 @@ class NEUDataset(Dataset):
 
 
 
-
+# TRAIN TRANSFORMS
 train_transforms = transforms.Compose([
 
-    transforms.Resize((224, 224)),
+    transforms.Resize(IMAGE_SIZE),
 
-    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomHorizontalFlip(
+        p=FLIP_PROBABILITY
+    ),
 
-    transforms.RandomRotation(10),
+    transforms.RandomRotation(
+        ROTATION_RANGE
+    ),
 
     transforms.ColorJitter(
-        brightness=0.1,
-        contrast=0.1
+        brightness=COLOR_JITTER_BRIGHTNESS,
+        contrast=COLOR_JITTER_CONTRAST
     ),
 
     transforms.ToTensor(),
 
     transforms.Normalize(
-        mean=[0.485, 0.456, 0.406],
-        std=[0.229, 0.224, 0.225]
+        mean=NORMALIZATION_MEAN,
+        std=NORMALIZATION_STD
     )
 ])
 
 
-
+# VALIDATION TRANSFORMS
 val_transforms = transforms.Compose([
 
-    transforms.Resize((224, 224)),
+    transforms.Resize(IMAGE_SIZE),
 
     transforms.ToTensor(),
 
     transforms.Normalize(
-        mean=[0.485, 0.456, 0.406],
-        std=[0.229, 0.224, 0.225]
+        mean=NORMALIZATION_MEAN,
+        std=NORMALIZATION_STD
     )
 ])

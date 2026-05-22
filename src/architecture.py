@@ -1,6 +1,10 @@
 import torch
 import torch.nn as nn
 
+from config import (
+    DROPOUT_PROBABILITY
+)
+
 
 class DefectClassifierCNN(nn.Module):
 
@@ -55,7 +59,7 @@ class DefectClassifierCNN(nn.Module):
 
             nn.ReLU(),
 
-            nn.Dropout(0.3),
+            nn.Dropout(DROPOUT_PROBABILITY),
 
             nn.Linear(
                 256,
@@ -70,4 +74,3 @@ class DefectClassifierCNN(nn.Module):
         x = self.classifier(x)
 
         return x
-        

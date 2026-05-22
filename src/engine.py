@@ -5,17 +5,21 @@ from torch.utils.tensorboard import SummaryWriter
 
 from resnet_model import ResNet18Transfer
 
+
 from dataset import (
     NEUDataset,
     train_transforms,
     val_transforms
 )
 
+from config import (
+    LEARNING_RATE,
+    EPOCHS,
+    BATCH_SIZE
+)
 
-# =========================================
+
 # DEVICE
-# =========================================
-
 DEVICE = torch.device(
     "cuda" if torch.cuda.is_available() else "cpu"
 )
@@ -23,88 +27,62 @@ DEVICE = torch.device(
 print(f"Using device: {DEVICE}")
 
 
-# =========================================
 # TENSORBOARD WRITER
-# =========================================
+writer = SummaryWriter(
+    "runs/defect_classifier"
+)
 
-writer = SummaryWriter("runs/defect_classifier")
 
-
-# =========================================
 # DATASETS
-# =========================================
-
 train_dataset = NEUDataset(
     root_dir="data/NEU-DET/train/images",
     transform=train_transforms
 )
-
 val_dataset = NEUDataset(
     root_dir="data/NEU-DET/validation/images",
     transform=val_transforms
 )
 
 
-# =========================================
 # DATALOADERS
-# =========================================
-
 train_loader = DataLoader(
     train_dataset,
-    batch_size=32,
+    batch_size=BATCH_SIZE,
     shuffle=True
 )
-
 val_loader = DataLoader(
     val_dataset,
-    batch_size=32,
+    batch_size=BATCH_SIZE,
     shuffle=False
 )
 
 
-# =========================================
 # MODEL
-# =========================================
-
 model = ResNet18Transfer().to(DEVICE)
 
 
-# =========================================
 # LOSS FUNCTION
-# =========================================
-
 loss_fn = nn.CrossEntropyLoss()
 
 
-# =========================================
 # OPTIMIZER
-# =========================================
-
 optimizer = torch.optim.Adam(
     model.parameters(),
-    lr=0.0001
+    lr=LEARNING_RATE
 )
 
 
-# =========================================
-# TRAINING SETTINGS
-# =========================================
-
-EPOCHS = 10
-
-
-# =========================================
-# TRAINING LOOP
-# =========================================
+# Main Training loop
 
 best_val_accuracy = 0.0
+
 for epoch in range(EPOCHS):
 
     print(f"\nEpoch [{epoch+1}/{EPOCHS}]")
 
-    # =====================================
+
+
     # TRAINING PHASE
-    # =====================================
 
     model.train()
 
@@ -116,30 +94,22 @@ for epoch in range(EPOCHS):
 
     for images, labels in train_loader:
 
-        # Move tensors to device
         images = images.to(DEVICE)
 
         labels = labels.to(DEVICE)
 
-        # Reset gradients
         optimizer.zero_grad()
 
-        # Forward pass
         outputs = model(images)
 
-        # Compute loss
         loss = loss_fn(outputs, labels)
 
-        # Backpropagation
         loss.backward()
 
-        # Update weights
         optimizer.step()
 
-        # Accumulate loss
         train_loss += loss.item()
 
-        # Predictions
         _, predicted = torch.max(outputs, 1)
 
         train_total += labels.size(0)
@@ -148,17 +118,15 @@ for epoch in range(EPOCHS):
             predicted == labels
         ).sum().item()
 
-    # Average train loss
     train_loss = train_loss / len(train_loader)
 
-    # Train accuracy
-    train_accuracy = 100 * train_correct / train_total
+    train_accuracy = (
+        100 * train_correct / train_total
+    )
 
 
-    # =====================================
+
     # VALIDATION PHASE
-    # =====================================
-
     model.eval()
 
     val_loss = 0.0
@@ -189,17 +157,15 @@ for epoch in range(EPOCHS):
                 predicted == labels
             ).sum().item()
 
-    # Average validation loss
     val_loss = val_loss / len(val_loader)
 
-    # Validation accuracy
-    val_accuracy = 100 * val_correct / val_total
+    val_accuracy = (
+        100 * val_correct / val_total
+    )
 
 
-    # =====================================
+
     # PRINT METRICS
-    # =====================================
-
     print(f"Train Loss: {train_loss:.4f}")
 
     print(f"Train Accuracy: {train_accuracy:.2f}%")
@@ -208,21 +174,20 @@ for epoch in range(EPOCHS):
 
     print(f"Validation Accuracy: {val_accuracy:.2f}%")
 
+
+
+    # SAVE BEST MODEL
     if val_accuracy > best_val_accuracy:
-
         best_val_accuracy = val_accuracy
-
         torch.save(
             model.state_dict(),
             "best_model.pth"
         )
-
         print("Best model saved.")
 
 
-    # =====================================
+
     # TENSORBOARD LOGGING
-    # =====================================
 
     writer.add_scalar(
         "Loss/Train",
@@ -249,9 +214,6 @@ for epoch in range(EPOCHS):
     )
 
 
-# =========================================
-# CLOSE TENSORBOARD WRITER
-# =========================================
 
 writer.close()
 

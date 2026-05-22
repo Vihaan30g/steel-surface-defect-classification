@@ -1,3 +1,5 @@
+# to visulaize the training dataset initially
+
 import random
 from pathlib import Path
 
