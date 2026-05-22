@@ -97,6 +97,7 @@ EPOCHS = 10
 # TRAINING LOOP
 # =========================================
 
+best_val_accuracy = 0.0
 for epoch in range(EPOCHS):
 
     print(f"\nEpoch [{epoch+1}/{EPOCHS}]")
@@ -206,6 +207,17 @@ for epoch in range(EPOCHS):
     print(f"Validation Loss: {val_loss:.4f}")
 
     print(f"Validation Accuracy: {val_accuracy:.2f}%")
+
+    if val_accuracy > best_val_accuracy:
+
+        best_val_accuracy = val_accuracy
+
+        torch.save(
+            model.state_dict(),
+            "best_model.pth"
+        )
+
+        print("Best model saved.")
 
 
     # =====================================
