@@ -54,6 +54,73 @@ Final Validation Accuracy:
 
 ---
 
+
+## Using the Trained Model
+
+Pretrained weights are available at:
+
+```text
+models/best_model.pth
+```
+
+Users can directly run inference on their own images using the provided `predict.py` script.
+
+---
+
+
+## Run Inference
+
+Command:
+
+```bash
+python src/predict.py --image path_to_image.jpg
+```
+
+Example:
+
+```bash
+python src/predict.py \
+--image data/NEU-DET/validation/images/crazing/crazing_241.jpg
+```
+
+Example Output:
+
+```text
+Predicted Defect Class:
+
+crazing
+```
+
+---
+
+## Supported Classes
+
+The model predicts the following steel surface defects:
+
+- crazing
+- inclusion
+- patches
+- pitted_surface
+- rolled-in_scale
+- scratches
+
+---
+
+## Inference Pipeline
+
+The inference script automatically:
+
+- loads pretrained ResNet18 weights
+- preprocesses the input image
+- resizes image to 224×224
+- applies ImageNet normalization
+- performs forward pass
+- returns predicted defect class
+
+
+---
+
+
 ## Repository Structure
 
 ```text
