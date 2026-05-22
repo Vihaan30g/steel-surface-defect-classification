@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from architecture import DefectClassifierCNN
+from resnet_model import ResNet18Transfer
 
 from dataset import (
     NEUDataset,
@@ -66,7 +66,7 @@ val_loader = DataLoader(
 # MODEL
 # =========================================
 
-model = DefectClassifierCNN().to(DEVICE)
+model = ResNet18Transfer().to(DEVICE)
 
 
 # =========================================
