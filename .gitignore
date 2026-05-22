@@ -22,8 +22,6 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 
-# PyTorch checkpoints
-*.pth
 
 # Dataset
 data/
